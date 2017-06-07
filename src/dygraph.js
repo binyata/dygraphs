@@ -1598,7 +1598,8 @@ Dygraph.prototype.mouseMove_ = function(event) {
   var canvasCoords = this.eventToDomCoords(event);
   var canvasx = canvasCoords[0];
   var canvasy = canvasCoords[1];
-
+  console.warn('test1');
+  /*
   var highlightSeriesOpts = this.getOption("highlightSeriesOpts");
   var selectionChanged = false;
   if (highlightSeriesOpts && !this.isSeriesLocked()) {
@@ -1621,7 +1622,7 @@ Dygraph.prototype.mouseMove_ = function(event) {
         this.selPoints_,
         this.lastRow_,
         this.highlightSet_);
-  }
+  }*/
 };
 
 /**

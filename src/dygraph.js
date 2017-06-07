@@ -1590,39 +1590,99 @@ Dygraph.prototype.findStackedPoint = function(domX, domY) {
  * @param {Object} event The mousemove event from the browser.
  * @private
  */
-Dygraph.prototype.mouseMove_ = function(event) {
+Dygraph.prototype.mouseMove_ = function (event) {
   // This prevents JS errors when mousing over the canvas before data loads.
   var points = this.layout_.points;
   if (points === undefined || points === null) return;
-
+  var closest;
+  var selectionChanged = false;
   var canvasCoords = this.eventToDomCoords(event);
   var canvasx = canvasCoords[0];
   var canvasy = canvasCoords[1];
-  console.warn('test1');
-  /*
-  var highlightSeriesOpts = this.getOption("highlightSeriesOpts");
-  var selectionChanged = false;
-  if (highlightSeriesOpts && !this.isSeriesLocked()) {
-    var closest;
-    if (this.getBooleanOption("stackedGraph")) {
-      closest = this.findStackedPoint(canvasx, canvasy);
-    } else {
-      closest = this.findClosestPoint(canvasx, canvasy);
-    }
-    selectionChanged = this.setSelection(closest.row, closest.seriesName);
-  } else {
-    var idx = this.findClosestRow(canvasx);
-    selectionChanged = this.setSelection(idx);
-  }
 
-  var callback = this.getFunctionOption("highlightCallback");
-  if (callback && selectionChanged) {
-    callback.call(this, event,
-        this.lastx_,
-        this.selPoints_,
-        this.lastRow_,
-        this.highlightSet_);
-  }*/
+  var followMouseThroughLine = this.getOption("followMouseThroughLine");
+  if (followMouseThroughLine) {
+
+    var highlightSeriesOpts = this.getOption("highlightSeriesOpts");
+    if (highlightSeriesOpts && !this.isSeriesLocked()) {
+      
+      if (this.getBooleanOption("stackedGraph")) {
+        closest = this.findStackedPoint(canvasx, canvasy);
+      } else {
+        closest = this.findClosestPoint(canvasx, canvasy);
+      }
+      selectionChanged = this.setSelection(closest.row, closest.seriesName);
+    } else {
+      var idx = this.findClosestRow(canvasx);
+      selectionChanged = this.setSelection(idx);
+    }
+    var callback = this.getFunctionOption("highlightCallback");
+    if (callback && selectionChanged) {
+      callback.call(this, event,
+      this.lastx_,
+      this.selPoints_,
+      this.lastRow_,
+      this.highlightSet_);
+    }
+
+    var test = this.canvas_.getContext('2d');
+    test.clearRect(0,0,this.width_,this.height_);
+    test.strokeStyle = 'black';
+    test.lineWidth = 1;
+    test.beginPath();
+    test.moveTo(canvasx, 0);
+    test.lineTo(canvasx, this.height_);
+    test.stroke();
+    test.fillStyle ="#e5e500";
+    test.fillRect(canvasx-135, (this.height_-60), 125, 125);
+    test.strokeText(idx, canvasx-125, (this.height_-50));
+
+    
+    /*
+    console.log(closest);
+    console.log(idx);
+    console.log(this.lastx_);
+    console.log(this.selPoints_);
+    console.log(this.lastRow_);
+    console.log(this.highlightSet_);
+    */
+    for (let x = 0; x < this.selPoints_.length; x++) {
+      test.fillStyle ="#e5e500";
+      test.fillRect(this.selPoints_[x].canvasx, this.selPoints_[x].canvasy, 50, 50);
+      test.strokeText(this.selPoints_[x].yval, this.selPoints_[x].canvasx, this.selPoints_[x].canvasy + 15);
+      /*
+      console.log('canvasx ' + this.selPoints_[x].canvasx);
+      console.log('canvasy ' + this.selPoints_[x].canvasy);
+      console.log('idx ' + this.selPoints_[x].idx);
+      console.log('name ' + this.selPoints_[x].name);
+      console.log('yval ' + this.selPoints_[x].yval);
+      */
+    }
+    
+  } else {
+    var highlightSeriesOpts = this.getOption("highlightSeriesOpts");
+    if (highlightSeriesOpts && !this.isSeriesLocked()) {
+      
+      if (this.getBooleanOption("stackedGraph")) {
+        closest = this.findStackedPoint(canvasx, canvasy);
+      } else {
+        closest = this.findClosestPoint(canvasx, canvasy);
+      }
+      selectionChanged = this.setSelection(closest.row, closest.seriesName);
+    } else {
+      var idx = this.findClosestRow(canvasx);
+      selectionChanged = this.setSelection(idx);
+    }
+    var callback = this.getFunctionOption("highlightCallback");
+    if (callback && selectionChanged) {
+      callback.call(this, event,
+      this.lastx_,
+      this.selPoints_,
+      this.lastRow_,
+      this.highlightSet_);
+    }
+  }
+  
 };
 
 /**
